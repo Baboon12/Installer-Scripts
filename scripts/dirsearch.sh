@@ -1,21 +1,9 @@
 #!/bin/bash
 
-# Check if the script is being run with sudo
+# Check if script is run as root
 if [[ $EUID -ne 0 ]]; then
-  echo "Please run this script with sudo."
-  exit 1
-fi
-
-# Check if Git is installed
-if ! command -v git &> /dev/null; then
-    echo "Git is not installed. Please install Git and try again."
-    exit 1
-fi
-
-echo "Checking python and pip installation" 
-if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
-    echo "python/pip installation Not Found" 
-    exit 1
+   echo "This script must be run as root"
+   exit 1
 fi
 
 # Detect Linux distribution
@@ -41,8 +29,32 @@ else
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 fi
 
-git clone https://github.com/maurosoria/dirsearch.git || { echo "Failed to clone dirsearch repository."; exit 1; }
-cd dirsearch
-pip3 install -r requirements.txt || { echo "Failed to install dirsearch dependencies. Please try again."; exit 1; }
-./dirsearch.py -h
-echo "Dirsearch Installed Successfully"
+# Install Python3 and pip3 if they are not installed
+install_python_and_pip() {
+    case $OS in
+        ubuntu|debian|kali)
+            apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
+            apt-get install -y python3 python3-pip || { echo "Failed to install Python3 and pip3. Please try again."; exit 1; }
+            ;;
+        centos|rhel|fedora)
+            yum install -y python3 python3-pip || { echo "Failed to install Python3 and pip3. Please try again."; exit 1; }
+            ;;
+        arch)
+            pacman -Sy --noconfirm python python-pip || { echo "Failed to install Python and pip. Please try again."; exit 1; }
+            ;;
+        *)
+            echo "Unsupported Linux distribution: $OS"
+            exit 1
+            ;;
+    esac
+}
+
+if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
+    echo "Python3 and/or pip3 not found. Installing..."
+    install_python_and_pip
+fi
+
+# Install dirsearch globally using pip3
+pip3 install dirsearch || { echo "Failed to install dirsearch. Please try manually."; exit 1; }
+
+echo "dirsearch installed successfully!"
