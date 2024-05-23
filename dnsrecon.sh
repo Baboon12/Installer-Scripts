@@ -1,9 +1,21 @@
 #!/bin/bash
 
-# Check if the script is being run with sudo
-if [[ $EUID -ne 0 ]]; then
-  echo "Please run this script with sudo."
-  exit 1
+# Function to check if running on Windows
+is_windows() {
+    case "$(uname -s)" in
+        CYGWIN*|MINGW32*|MSYS*|MINGW*)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Check if the script is being run with sudo (only if not on Windows)
+if ! is_windows && [[ $EUID -ne 0 ]]; then
+    echo "Please run this script with sudo."
+    exit 1
 fi
 
 # Check if Git is installed
@@ -12,36 +24,7 @@ if ! command -v git &> /dev/null; then
     exit 1
 fi
 
-echo "Checking python and pip installation" 
-if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
-    echo "python/pip installation Not Found" 
-    exit 1
-fi
-
-# Detect Linux distribution
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-elif type lsb_release >/dev/null 2>&1; then
-    OS=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
-elif [ -f /etc/lsb-release ]; then
-    . /etc/lsb-release
-    OS=$DISTRIB_ID
-elif [ -f /etc/debian_version ]; then
-    OS=debian
-elif [ -f /etc/fedora-release ]; then
-    OS=fedora
-elif [ -f /etc/redhat-release ]; then
-    if grep -q "CentOS" /etc/redhat-release; then
-        OS=centos
-    else
-        OS=rhel
-    fi
-else
-    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-fi
-
-# Function to install a package using the appropriate package manager
+# Function to install dependencies on Linux
 install_package() {
     local package=$1
 
@@ -62,22 +45,76 @@ install_package() {
     esac
 }
 
-# Update package lists and install necessary packages
-case $OS in
-    ubuntu|debian|kali)
-        apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
-        install_package "dnsrecon"
-        ;;
-    centos|rhel|fedora)
-        install_package "dnsrecon"
-        ;;
-    arch)
-        install_package "dnsrecon"
-        ;;
-    *)
-        echo "Unsupported Linux distribution: $OS"
-        exit 1
-        ;;
-esac
+# Install dependencies based on the detected OS
+if is_windows; then
+    # Assuming Python and pip are already installed on Windows
+    echo "Running on Windows..."
+else
+    # Detect Linux distribution
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+    elif type lsb_release >/dev/null 2>&1; then
+        OS=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
+    elif [ -f /etc/lsb-release ]; then
+        . /etc/lsb-release
+        OS=$DISTRIB_ID
+    elif [ -f /etc/debian_version ]; then
+        OS=debian
+    elif [ -f /etc/fedora-release ]; then
+        OS=fedora
+    elif [ -f /etc/redhat-release ]; then
+        if grep -q "CentOS" /etc/redhat-release; then
+            OS=centos
+        else
+            OS=rhel
+        fi
+    else
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+    fi
 
-echo "dnsrecon Installed Successfully"
+    # Update package lists and install necessary packages
+    case $OS in
+        ubuntu|debian|kali)
+            apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
+            install_package "python3-pip"
+            ;;
+        centos|rhel|fedora)
+            install_package "python3-pip"
+            ;;
+        arch)
+            install_package "python-pip"
+            ;;
+        *)
+            echo "Unsupported Linux distribution: $OS"
+            exit 1
+            ;;
+    esac
+fi
+
+# Clone the repository
+git clone https://github.com/darkoperator/dnsrecon.git
+
+# Check repository cloning
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to clone the repository."
+  exit 1
+fi
+
+# Navigate to the required directory
+cd dnsrecon
+
+# Install the dependencies
+pip install -r requirements.txt --no-warn-script-location
+
+# Check for installation error
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to install the dependencies."
+  exit 1
+fi
+
+# Test working of the help command
+python dnsrecon.py -h
+
+# Print message
+echo "dnsrecon installation and setup successfully completed"
