@@ -51,7 +51,7 @@ cd "$BEEF_DIR"
 echo "Starting Dependencies Installation" 
 
 if [[ "$OS" == "ubuntu" || "$OS" == "debian" || "$OS" == "kali" ]]; then
-  apt-get update && apt-get install -y ruby-dev libpq-dev build-essential autoconf bison libssl-dev libreadline6-dev zlib1g-dev libcurl4-openssl-dev libjansson-dev libffi-dev libxml2-dev libxslt1-dev rake
+  apt-get install -y ruby-dev libpq-dev build-essential autoconf bison libssl-dev libreadline6-dev zlib1g-dev libcurl4-openssl-dev libjansson-dev libffi-dev libxml2-dev libxslt1-dev rake
 
 elif [[ "$OS" == "arch" ]]; then
   pacman -Sy

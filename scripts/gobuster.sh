@@ -32,7 +32,6 @@ fi
 echo "Install Gobuster based on the distribution"
 case $OS in
     ubuntu|debian|kali)
-        apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
         apt-get install -y gobuster || { echo "Failed to install Gobuster. Please try again."; exit 1; }
         ;;
     centos|rhel|fedora)

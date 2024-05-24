@@ -32,7 +32,6 @@ fi
 echo "Install Hydra based on the distribution"
 case $OS in
     ubuntu|debian|kali)
-        apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
         apt-get install -y hydra || { echo "Failed to install Hydra. Please try again."; exit 1; }
         ;;
     centos|rhel|fedora)

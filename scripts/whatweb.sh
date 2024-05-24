@@ -31,7 +31,7 @@ else
 fi
 
 if [[ "$OS" == "ubuntu" || "$OS" == "debian" || "$OS" == "kali" ]]; then
-  apt update & apt install -y whatweb
+  apt install -y whatweb
 elif [[ "$OS" == "arch" || "$OS" == "rhel" || "$OS" == "centos" || "$OS" == "fedora"]]; then
   git clone https://github.com/urbanadventurer/WhatWeb.git 
   cd WhatWeb

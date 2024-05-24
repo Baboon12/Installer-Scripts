@@ -33,7 +33,6 @@ fi
 install_python_and_pip() {
     case $OS in
         ubuntu|debian|kali)
-            apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
             apt-get install -y python3 python3-pip || { echo "Failed to install Python3 and pip3. Please try again."; exit 1; }
             ;;
         centos|rhel|fedora)

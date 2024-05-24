@@ -38,7 +38,6 @@ fi
 echo "Install dependencies and recon-ng based on the distribution"
 case $OS in
     ubuntu|debian|kali)
-        apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
         apt-get install -y python3-pip || { echo "Failed to install Python3-pip. Please try again."; exit 1; }
         ;;
     centos|rhel|fedora)

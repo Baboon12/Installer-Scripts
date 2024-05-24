@@ -65,7 +65,6 @@ install_package() {
 # Update package lists and install necessary packages
 case $OS in
     ubuntu|debian|kali)
-        apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
         install_package "dnsenum"
         ;;
     centos|rhel|fedora)

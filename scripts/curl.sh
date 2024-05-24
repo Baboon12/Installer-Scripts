@@ -15,7 +15,6 @@ fi
 if ! dpkg -s build-essential &> /dev/null
 then
     echo "build-essential is not installed. Installing it now..."
-    sudo apt-get update
     sudo apt-get install -y build-essential
 fi
 

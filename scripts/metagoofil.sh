@@ -6,7 +6,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-echo "\nDetecting Linux distribution"
+echo "Detecting Linux distribution"
 
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -30,13 +30,13 @@ else
     OS=$(uname -s)
 fi
 
-echo "\nChecking python and pip installation" 
+echo "Checking python and pip installation" 
 if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
     echo "python/pip installation Not Found" 
     exit 1
 fi
 
-echo "\nClone the Metagoofil repository"
+echo "Clone the Metagoofil repository"
 git clone https://github.com/opsdisk/metagoofil
 
 cd metagoofil
