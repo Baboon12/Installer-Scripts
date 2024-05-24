@@ -33,6 +33,7 @@ fi
 install_python_and_pip() {
     case $OS in
         ubuntu|debian|kali)
+            apt-get update || { echo "Failed to update apt cache. Please check your internet connection or try again later."; exit 1; }
             apt-get install -y python3 python3-pip || { echo "Failed to install Python3 and pip3. Please try again."; exit 1; }
             ;;
         centos|rhel|fedora)
@@ -53,7 +54,23 @@ if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
     install_python_and_pip
 fi
 
-# Install dirsearch globally using pip3
-pip3 install dirsearch || { echo "Failed to install dirsearch. Please try manually."; exit 1; }
+# Install dirsearch globally
+install_dirsearch() {
+    case $OS in
+        ubuntu|debian|kali)
+            apt-get install -y dirsearch || { echo "Failed to install dirsearch using apt. Trying pip..."; pip3 install dirsearch || { echo "Failed to install dirsearch using pip. Please try manually."; exit 1; } }
+            ;;
+        centos|rhel|fedora|arch)
+            pip3 install dirsearch || { echo "Failed to install dirsearch using pip. Please try manually."; exit 1; }
+            ;;
+        *)
+            echo "Unsupported Linux distribution: $OS"
+            exit 1
+            ;;
+    esac
+}
+
+echo "Installing dirsearch..."
+install_dirsearch
 
 echo "dirsearch installed successfully!"
